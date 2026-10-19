@@ -257,7 +257,17 @@ def read_bill(bill_photo, current_hsn_code, current_gst_rate):
 # Each photo box has its own "busy" flag, so two reads at the same moment can't overwrite each other's count.
 # Check is greyed out while either box is busy, and only comes back when both are done.
 def start_reading():
-    return gr.update(interactive=False), "⏳ Reading…", True
+    return gr.update(interactive=False), busy("⏳ Reading…"), True
+
+
+# Anything that says "working on it" is shown in orange (class busy-text, see PAGE_STYLE)
+def busy(text):
+    return '<span class="busy-text">' + text + "</span>"
+
+
+# Check clicked: show an orange "Checking…" in the result and hide the old seller message until the answer comes
+def start_checking():
+    return busy("⏳ Checking… This can take up to a minute."), gr.update(value="", visible=False)
 
 
 # The read remembers the "Clear all" count from when it started, so its answer can be thrown away if
@@ -473,6 +483,7 @@ PAGE_STYLE = """
 #answer table {width: 100%;}
 .page-title {font-size: 2em; font-weight: 700; margin: 0;}
 .gst-word {color: #E50914;}
+.busy-text {color: #FF8C00; font-weight: 600;}
 @media (max-width: 700px) { #answer {min-height: 260px !important;} }
 """
 
@@ -625,11 +636,17 @@ with gr.Blocks(title="BillShield: GST Check") as page:
         queue=False,
     ).then(hide_seller_message, outputs=seller_message_box, queue=False)
 
-    check_button.click(
+    check_step = check_button.click(
+        start_checking, outputs=[answer_box, seller_message_box], queue=False,
+    ).then(
         check_bill,
         inputs=[product_details_box, bill_hsn_box, bill_gst_box, user_name_box],
         outputs=[answer_box, seller_message_box],
         queue=False,
+    )
+    # If the check request itself dies (e.g. a server time limit), don't leave "Checking…" on screen
+    check_step.failure(
+        lambda: "❌ Couldn't check this one. Please try again.", outputs=answer_box, queue=False,
     )
 
     my_checks_button.click(
