@@ -1,3 +1,7 @@
-fastapi
-gradio
-uvicorn
+fastapi==0.148.0
+uvicorn==0.54.0
+gradio==6.30.0
+openai==3.35.1
+python-dotenv==1.2.4
+pillow==12.3.0
+pypdfium2==5.14.0
