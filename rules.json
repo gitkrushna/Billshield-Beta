@@ -1,0 +1,825 @@
+{
+  "version": "2026-10-19-salt-agri-v1",
+  "rate_basis": "Total GST = 2 x CGST. Notif 9/2025-CT(Rate) and 10/2025-CT(Rate), both dated 17-Sep-2025, in force from 22-Sep-2025. Texts and rates read from the Goa SGST mirrors (same schedules and S.Nos). Later amendments (19/2025, 01/2026, 57th Council Oct 2026) not checked against these PDFs.",
+  "text_normalisation": "Line breaks collapsed to single spaces; curly quotes and dashes changed to ASCII; soft hyphens rejoined as '-'.",
+  "chapters": [
+    {
+      "chapter": "07",
+      "title": "Edible vegetables and certain roots and tubers",
+      "covered": true,
+      "scope": "seed-quality goods only (R08)"
+    },
+    {
+      "chapter": "09",
+      "title": "Coffee, tea, mate and spices",
+      "covered": true,
+      "scope": "seed-quality goods only (R08)"
+    },
+    {
+      "chapter": "10",
+      "title": "Cereals",
+      "covered": true,
+      "scope": "seed-quality goods only (R08)"
+    },
+    {
+      "chapter": "12",
+      "title": "Oil seeds and oleaginous fruits; miscellaneous grains, seeds and fruit; industrial or medicinal plants; straw and fodder",
+      "covered": true,
+      "scope": "seed quality and 1209 only"
+    },
+    {
+      "chapter": "25",
+      "title": "Salt; sulphur; earths and stone; plastering materials, lime and cement",
+      "covered": true,
+      "scope": "salt 2501 only"
+    },
+    {
+      "chapter": "28",
+      "title": "Inorganic chemicals; organic or inorganic compounds of precious metals, of rare-earth metals, of radioactive elements or of isotopes",
+      "covered": true,
+      "scope": "residual entry, fertiliser-grade phosphoric acid, micronutrients"
+    },
+    {
+      "chapter": "29",
+      "title": "Organic chemicals",
+      "covered": true,
+      "scope": "gibberellic acid only"
+    },
+    {
+      "chapter": "31",
+      "title": "Fertilisers",
+      "covered": true,
+      "scope": "3101-3105"
+    },
+    {
+      "chapter": "33",
+      "title": "Essential oils and resinoids; perfumery, cosmetic or toilet preparations",
+      "covered": false
+    },
+    {
+      "chapter": "34",
+      "title": "Soap, organic surface-active agents, washing preparations, lubricating preparations, artificial waxes, prepared waxes, polishing or scouring preparations, candles and similar articles, modelling pastes, dental waxes and dental preparations with a basis of plaster",
+      "covered": true,
+      "scope": "3402 only"
+    },
+    {
+      "chapter": "38",
+      "title": "Miscellaneous chemical products",
+      "covered": true,
+      "scope": "3808, 3824 and the micronutrient entry"
+    },
+    {
+      "chapter": "39",
+      "title": "Plastics and articles thereof",
+      "covered": false
+    },
+    {
+      "chapter": "40",
+      "title": "Rubber and articles thereof (e.g. tyres)",
+      "covered": false
+    },
+    {
+      "chapter": "84",
+      "title": "Nuclear reactors, boilers, machinery and mechanical appliances; parts thereof",
+      "covered": true,
+      "scope": "8424 sprayers, sprinklers, nozzles only; no tractors or other farm machinery"
+    },
+    {
+      "chapter": "85",
+      "title": "Electrical machinery and equipment and parts thereof",
+      "covered": false
+    },
+    {
+      "chapter": "87",
+      "title": "Vehicles other than railway or tramway rolling-stock, and parts and accessories thereof (e.g. tractors)",
+      "covered": false
+    }
+  ],
+  "rows": [
+    {
+      "id": "R01",
+      "hsn": "2501",
+      "title": "Salt and pure sodium chloride (incl. dishwasher / water-softener salt if only NaCl)",
+      "text": "Salt (including table salt and denatured salt) and pure sodium chloride, whether or not in aqueous solutions or containing added anti-caking or free flowing agents; sea water",
+      "rate": 0,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the product only salt (sodium chloride), with at most an anti-caking or free-flowing agent, and no surface-active agent, detergent, acid, fragrance or other cleaning ingredient?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is it salt as such (crude, washed, crushed, ground or sifted), not a product obtained by mixing salt with other substances (Chapter 25 Note 1)?"
+        }
+      ],
+      "rivals": [
+        "R02",
+        "R04"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 10/2025-CT(Rate) (exemption, nil), S.No. 109; heading 2501 has no entry in Notif 9/2025 Schedules I-VII, so all 2501 goods are nil; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true,
+      "note": "Tariff 2501 00 splits into 10 common salt (incl. iodised), 20 rock salt, 90 other; the exemption covers the whole heading, so all three are nil. Pure NaCl is a separate chemically defined compound, which Chapter 34 Note 1(b) keeps out of Chapter 34."
+    },
+    {
+      "id": "R02",
+      "hsn": "3402",
+      "title": "Washing and cleaning preparations; organic surface-active agents (detergents)",
+      "text": "Organic surface-active agents (other than soap); surface-active preparations, washing preparations (including auxiliary washing preparations) and cleaning preparations, whether or not containing soap, other than those of heading 3401 [other than Sulphonated castor oil, fish oil or sperm oil] | Washing preparations (including auxiliary washing preparations) and cleaning preparations, having a basis of soap or other organic surface active agents | Cleaning or degreasing preparations not having a basis of soap or other organic surface active agents",
+      "rate": 18,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Does the product contain an organic surface-active agent (surfactant or detergent), or is it a washing or cleaning preparation made by mixing several ingredients?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is the product a separate chemically defined compound only (for example, just sodium chloride)? If yes, Chapter 34 Note 1(b) excludes it from Chapter 34."
+        }
+      ],
+      "rivals": [
+        "R01",
+        "R03",
+        "R04"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule II (9% CGST = 18% GST), S.No. 67; tariff sub-heading words from codex hsn_codes.csv (Chapter 34 mirror, 3402 90); text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R03",
+      "hsn": "3402",
+      "title": "Sulphonated castor oil, fish oil or sperm oil",
+      "text": "Sulphonated castor oil, fish oil or sperm oil",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the product sulphonated castor oil, fish oil or sperm oil?"
+        }
+      ],
+      "rivals": [
+        "R02"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 252; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R04",
+      "hsn": "3824",
+      "title": "Chemical products and preparations n.e.s. (fallback)",
+      "text": "Prepared binders for foundry moulds or cores; chemical products and preparations of the chemical or allied industries (including those consisting of mixtures of natural products), not elsewhere specified or included",
+      "rate": 18,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it a chemical product or preparation that no more specific heading (fertiliser 31, pesticide 3808, salt 2501, washing preparation 3402, micronutrient entry) covers?"
+        },
+        {
+          "id": "c2",
+          "ask": "For sodium chloride: is it cultured crystals of 2.5 g or more each (Chapter 25 Note 2(h) sends those to 3824)?"
+        }
+      ],
+      "rivals": [
+        "R01",
+        "R02",
+        "R16",
+        "R19",
+        "R21"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule II (9% CGST = 18% GST), S.No. 110; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R05",
+      "hsn": "28",
+      "title": "Inorganic chemicals not specified elsewhere (e.g. zinc sulphate 2833 not meeting the micronutrient entry)",
+      "text": "All inorganic chemicals [other than those specified in notification No. 38/1/2017-Fin(R&C)(10/2025-Rate) dated 17th September 2025 or other Schedules of this notification]",
+      "rate": 18,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it a separate inorganic chemical compound (Chapter 28), e.g. zinc sulphate, borax, sold without meeting the FCO micronutrient conditions?"
+        }
+      ],
+      "rivals": [
+        "R19",
+        "R04"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule II (9% CGST = 18% GST), S.No. 35; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R06",
+      "hsn": "1209",
+      "title": "Seeds, fruit and spores for sowing (e.g. hybrid vegetable seeds)",
+      "text": "Seeds, fruit and spores, of a kind used for sowing. Explanation: This entry does not cover seeds meant for any use other than sowing",
+      "rate": 0,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Are the seeds meant for sowing (not for eating, oil extraction or other use)?"
+        }
+      ],
+      "rivals": [
+        "R07",
+        "R08",
+        "R09"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 10/2025-CT(Rate) (exemption, nil), S.No. 84; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R07",
+      "hsn": "1209",
+      "title": "Tamarind seeds not for sowing",
+      "text": "Tamarind seeds meant for any use other than sowing",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Are these tamarind seeds meant for a use other than sowing?"
+        }
+      ],
+      "rivals": [
+        "R06"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 69; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R08",
+      "hsn": "07",
+      "hsn_prefixes": [
+        "07",
+        "09",
+        "10"
+      ],
+      "title": "Goods of seed quality of Chapters 07, 09 or 10 (e.g. seed potatoes, seed paddy)",
+      "text": "All goods of seed quality",
+      "rate": 0,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the good of seed quality (meant for sowing/planting)?"
+        }
+      ],
+      "rivals": [
+        "R06"
+      ],
+      "disputes": [],
+      "complete": false,
+      "source": "Notif 10/2025-CT(Rate) (exemption, nil), S.No. 56; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true,
+      "note": "Non-seed-quality goods of Chapters 07/09/10 have many separate entries that are not in this file."
+    },
+    {
+      "id": "R09",
+      "hsn": "12",
+      "title": "Chapter 12 goods of seed quality (e.g. oilseeds for sowing)",
+      "text": "All goods of seed quality",
+      "rate": 0,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the good of seed quality (meant for sowing)?"
+        }
+      ],
+      "rivals": [
+        "R06"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 10/2025-CT(Rate) (exemption, nil), S.No. 77; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true,
+      "note": "Chapter 12 goods other than of seed quality are 5% under Sch I S.No.60 (not a separate row)."
+    },
+    {
+      "id": "R10",
+      "hsn": "3101",
+      "title": "Organic manure / animal or vegetable fertilisers, loose (not pre-packaged and labelled)",
+      "text": "All goods and organic manure, other than pre-packaged and labelled",
+      "rate": 0,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it an animal, vegetable or organic fertiliser or manure (e.g. vermicompost, FYM)?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is it sold loose, i.e. NOT pre-packaged and labelled (not a retail pack of up to 25 kg bearing Legal Metrology declarations)?"
+        }
+      ],
+      "rivals": [
+        "R11",
+        "R16"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 10/2025-CT(Rate) (exemption, nil), S.No. 116; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R11",
+      "hsn": "3101",
+      "title": "Organic fertilisers pre-packaged and labelled (e.g. vermicompost, FYM, bone meal in retail packs)",
+      "text": "All goods i.e. animal or vegetable fertilisers or organic fertilisers pre-packaged and labelled",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it an animal, vegetable or organic fertiliser (e.g. vermicompost), not a chemically produced fertiliser?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is it pre-packaged and labelled (retail pack of up to 25 kg bearing Legal Metrology declarations)?"
+        },
+        {
+          "id": "c3",
+          "ask": "Is the pack gross weight above 10 kg and not in tablet form? (Heading 3105 covers 'goods of this Chapter in tablets or similar forms or in packages of a gross weight not exceeding 10 kg'.)"
+        }
+      ],
+      "rivals": [
+        "R10",
+        "R12",
+        "R16"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 237; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R12",
+      "hsn": "3101",
+      "title": "Seaweed-extract bio-stimulant registered under FCO Schedule VI (no plant growth regulator)",
+      "text": "All goods i.e. animal or vegetable fertilisers or organic fertilisers pre-packaged and labelled",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it seaweed-extract based?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is it registered as a bio-stimulant under Schedule VI of the Fertiliser Control Order, 1985 (registration on label)?"
+        },
+        {
+          "id": "c3",
+          "ask": "Is it free of plant growth regulators (label says no PGR / no hormones)?"
+        },
+        {
+          "id": "c4",
+          "ask": "Is it pre-packaged and labelled?"
+        }
+      ],
+      "rivals": [
+        "R11",
+        "R16",
+        "R21",
+        "R22"
+      ],
+      "disputes": [
+        {
+          "hsn": "3808",
+          "source": "Gujarat AAR, Jivagro Ltd, GUJ/GAAR/R/2023/24 (approx. 30-06-2023): FCO-registered bio-stimulant 'Rapigro' held a plant growth regulator under 3808 93 40 at 18% (secondary); also CGST Ahmedabad demand on Dhanuka Agritech, Rs 121.32 cr, 9 Dec 2025 (secondary)"
+        }
+      ],
+      "complete": false,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 237 (rate); classification of FCO Sch VI seaweed bio-stimulants into 3101 rests only on CBIC FAQs on goods after the 57th GST Council, 9 Oct 2026, seen via TaxGuru (secondary); amending Explanation to S.No.237 not seen; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true,
+      "note": "Text is the S.No.237 entry; the bio-stimulant link is not in the notification text itself."
+    },
+    {
+      "id": "R13",
+      "hsn": "3102",
+      "title": "Nitrogenous fertilisers (e.g. urea, neem-coated urea)",
+      "text": "Mineral or chemical fertilisers, nitrogenous, other than those which are clearly not to be used as fertilizers",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it sold for use as a fertiliser (fertiliser grade, FCO details on label), not industrial or technical grade?"
+        }
+      ],
+      "rivals": [
+        "R17",
+        "R16"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 238; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R14",
+      "hsn": "3103",
+      "title": "Phosphatic fertilisers (e.g. single super phosphate)",
+      "text": "Mineral or chemical fertilisers, phosphatic, other than those which are clearly not to be used as fertilizers",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it sold for use as a fertiliser, not industrial or technical grade?"
+        }
+      ],
+      "rivals": [
+        "R17",
+        "R16",
+        "R18"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 239; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R15",
+      "hsn": "3104",
+      "title": "Potassic fertilisers (e.g. muriate of potash)",
+      "text": "Mineral or chemical fertilisers, potassic, other than those which are clearly not to be used as fertilizers",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it sold for use as a fertiliser, not industrial or technical grade?"
+        }
+      ],
+      "rivals": [
+        "R17",
+        "R16"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 240; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R16",
+      "hsn": "3105",
+      "title": "NPK / two-or-three-element fertilisers; other fertilisers; Ch.31 goods in packs up to 10 kg (e.g. water-soluble NPK 19:19:19, DAP)",
+      "text": "Mineral or chemical fertilisers containing two or three of the fertilising elements nitrogen, phosphorus and potassium; other fertilisers; goods of this Chapter in tablets or similar forms or in packages of a gross weight not exceeding 10 kg; other than those which are clearly not to be used as fertilizers",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Does it contain two or three of N, P and K as fertilising elements, or is it another fertiliser of Chapter 31, or a Chapter 31 good in tablets or a pack of 10 kg gross or less?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is it sold for use as a fertiliser (FCO grade on label), not industrial or technical grade?"
+        }
+      ],
+      "rivals": [
+        "R17",
+        "R11",
+        "R12",
+        "R04",
+        "R19"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 241; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R17",
+      "hsn": "3102",
+      "hsn_prefixes": [
+        "3102",
+        "3103",
+        "3104",
+        "3105"
+      ],
+      "title": "Chapter 31 mineral/chemical fertiliser goods clearly not to be used as fertilisers (industrial/technical grade)",
+      "text": "Mineral or chemical fertilisers, nitrogenous, which are clearly not to be used as fertilizers | Mineral or chemical fertilisers, phosphatic, which are clearly not to be used as fertilizers | Mineral or chemical fertilisers, potassic, which are clearly not to be used as fertilizers | Mineral or chemical fertilisers containing two or three of the fertilising elements nitrogen, phosphorus and potassium; other fertilisers; goods of this Chapter in tablets or similar forms or in packages of a gross weight not",
+      "rate": 18,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the product clearly not meant for use as a fertiliser (e.g. technical/industrial grade, sold for a non-farm use)?"
+        }
+      ],
+      "rivals": [
+        "R13",
+        "R14",
+        "R15",
+        "R16"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule II (9% CGST = 18% GST), S.No. 39, 40, 41, 42 (texts joined with ' | '); text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R18",
+      "hsn": "2809",
+      "title": "Fertiliser grade phosphoric acid",
+      "text": "Fertilizer grade phosphoric acid",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it phosphoric acid of fertiliser grade?"
+        }
+      ],
+      "rivals": [
+        "R05",
+        "R14"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 216; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true,
+      "note": "Non-fertiliser-grade phosphoric acid falls under Sch II S.No.35 (row R05)."
+    },
+    {
+      "id": "R19",
+      "hsn": "28",
+      "hsn_prefixes": [
+        "28",
+        "38"
+      ],
+      "title": "Micronutrients listed in FCO Sch 1 Part A 1(g), made by FCO-registered manufacturers (e.g. agri-grade zinc sulphate)",
+      "text": "Micronutrients, which are covered under serial number 1(g) of Schedule 1, Part (A) of the Fertilizer Control Order, 1985 and are manufactured by the manufacturers which are registered under the Fertilizer Control Order, 1985",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the product a micronutrient listed under serial number 1(g) of Schedule 1, Part (A) of the Fertiliser Control Order, 1985 (label states FCO micronutrient grade)?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is the manufacturer registered under the Fertiliser Control Order, 1985 (registration on label)?"
+        }
+      ],
+      "rivals": [
+        "R05",
+        "R04",
+        "R16"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 221; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R20",
+      "hsn": "3808",
+      "title": "Listed bio-pesticides (Bt, B. sphaericus, Trichoderma viride/harzianum, Pseudomonas, Beauveria, NPV, neem-based, Cymbopogan)",
+      "text": "The following Bio-pesticides, namely- 1 Bacillus thuringiensis var. israelensis 2 Bacillus thuringiensis var. kurstaki 3 Bacillus thuringiensis var. galleriae 4 Bacillus sphaericus 5 Trichoderma viride 6 Trichoderma harzianum 7 Pseudomonas fluoresens 8 Beauveria bassiana 9 NPV of Helicoverpa armigera 10 NPV of Spodoptera litura 11 Neem based pesticides 12 Cymbopogan",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the active organism or ingredient one of the 12 named in the entry (e.g. Trichoderma viride), per the label or CIB&RC registration?"
+        }
+      ],
+      "rivals": [
+        "R21"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 260 (pdf text glued 'Beauveriabassiana', 'Helicoverpaarmigera', 'Spodopteralitura'; spaces restored, spelling 'fluoresens' kept as printed); text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R21",
+      "hsn": "3808",
+      "title": "Insecticides, fungicides, herbicides, plant-growth regulators, disinfectants (chemical pesticides; unlisted bio-pesticides)",
+      "text": "Insecticides, rodenticides, fungicides, herbicides, anti-sprouting products and plant-growth regulators, disinfectants and similar products [other than bio-pesticides mentioned against S. No. 260 of Schedule -I]",
+      "rate": 18,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the active ingredient a chemical pesticide, a plant growth regulator, or a bio-pesticide NOT among the 12 named in Sch I S.No.260?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is the active ingredient other than gibberellic acid (which is 5% under Sch I S.No.222)?"
+        }
+      ],
+      "rivals": [
+        "R20",
+        "R22",
+        "R12"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule II (9% CGST = 18% GST), S.No. 95; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R22",
+      "hsn": "29",
+      "hsn_prefixes": [
+        "29",
+        "380893"
+      ],
+      "title": "Gibberellic acid (plant growth regulator, 5%)",
+      "text": "Gibberellic acid",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is the active ingredient gibberellic acid?"
+        }
+      ],
+      "rivals": [
+        "R21",
+        "R12"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 222; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true,
+      "note": "Other organic chemicals of Chapter 29 are 18% under Sch II S.No.36 ('All organic chemicals other than giberellic acid'), not a separate row."
+    },
+    {
+      "id": "R23",
+      "hsn": "8424",
+      "title": "Mechanical sprayer, hand-operated (e.g. manual knapsack sprayer); sprinklers; drip irrigation",
+      "text": "Sprinklers; drip irrigation system including laterals; mechanical sprayers",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it a sprayer (or sprinkler / drip irrigation system), not a spray gun, fire extinguisher or blasting machine?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is it hand-operated, with no engine and no electric motor or battery?"
+        }
+      ],
+      "rivals": [
+        "R24",
+        "R26",
+        "R25"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 431; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true,
+      "note": "Spare parts of sprayers are not named in S.No.431 (no 'parts thereof'); not covered by this row."
+    },
+    {
+      "id": "R24",
+      "hsn": "8424",
+      "title": "Powered sprayer (battery or engine knapsack / HTP power sprayer) claimed as 'mechanical sprayer'",
+      "text": "Sprinklers; drip irrigation system including laterals; mechanical sprayers",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it a sprayer for agricultural use?"
+        },
+        {
+          "id": "c2",
+          "ask": "Is it driven by an engine or a battery/electric motor? (Whether a powered sprayer is a 'mechanical sprayer' is disputed.)"
+        }
+      ],
+      "rivals": [
+        "R23",
+        "R26"
+      ],
+      "disputes": [
+        {
+          "hsn": "8424",
+          "source": "Gujarat AAR, Kirloskar Oil Engines Ltd, GUJ/GAAR/R/2022/44, 28-09-2022 (secondary; pre-2025 regime): engine-driven HTP power sprayer held under 8424 89 90 at 18%, relying on Circular 113/32/2019-GST para 5"
+        }
+      ],
+      "complete": false,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 431 (rate of the entry; whether powered sprayers fall in it is not settled); text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R25",
+      "hsn": "8424",
+      "title": "Nozzles for drip irrigation or sprinklers",
+      "text": "Nozzles for drip irrigation equipment or nozzles for sprinklers",
+      "rate": 5,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it a nozzle for drip irrigation equipment or for sprinklers?"
+        }
+      ],
+      "rivals": [
+        "R26",
+        "R23"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule I (2.5% CGST = 5% GST), S.No. 430; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "R26",
+      "hsn": "8424",
+      "title": "Other spraying appliances: spray guns, fire extinguishers, blasting machines (not mechanical sprayers)",
+      "text": "Mechanical appliances (whether or not hand-operated) for projecting, dispersing or spraying liquids or powders; fire extinguishers, whether or not charged; spray guns and similar appliances; steam or sand blasting machines and similar jet projecting machines [other than sprinklers; drip irrigation systems including laterals; mechanical sprayer; nozzles for drip irrigation equipment or nozzles for sprinklers]",
+      "rate": 18,
+      "conditions": [
+        {
+          "id": "c1",
+          "ask": "Is it an appliance for projecting or spraying (spray gun, fire extinguisher, sand/steam blaster, industrial sprayer) that is NOT a sprinkler, drip system, mechanical sprayer or drip/sprinkler nozzle?"
+        }
+      ],
+      "rivals": [
+        "R23",
+        "R24",
+        "R25"
+      ],
+      "disputes": [],
+      "complete": true,
+      "source": "Notif 9/2025-CT(Rate), Schedule II (9% CGST = 18% GST), S.No. 413; text and rate read from the Goa SGST mirror of the same notification (same S.No.), 17-Sep-2025, effective 22-Sep-2025",
+      "rate_verified": true
+    },
+    {
+      "id": "G01",
+      "type": "rule",
+      "hsn": "",
+      "title": "GRI 1: headings and notes decide",
+      "text": "1. The titles of Sections, Chapters and sub-Chapters are provided for ease of reference only; for legal purposes, classification shall be determined according to the terms of the headings and any relative Section or Chapter Notes and, provided such headings or Notes do not otherwise require, according to the following provisions :",
+      "rate": null,
+      "applies_to": [
+        "all"
+      ],
+      "source": "General Rules for the Interpretation, Rule 1 (WCO HS 2022 text, codex/data/gri_rules.csv); applied to GST by Notif 9/2025 Explanation (b)"
+    },
+    {
+      "id": "G02",
+      "type": "rule",
+      "hsn": "",
+      "title": "GRI 3(a): most specific heading wins",
+      "text": "3. When by application of Rule 2 (b) or for any other reason, goods are, prima facie, classifiable under two or more headings, classification shall be effected as follows : (a) The heading which provides the most specific description shall be preferred to headings providing a more general description. However, when two or more headings each refer to part only of the materials or substances contained in mixed or composite goods or to part only of the items in a set put up for retail sale, those headings are to be regarded as equally specific in relation to those goods, even if one of them gives a more complete or precise description of the goods.",
+      "rate": null,
+      "applies_to": [
+        "all"
+      ],
+      "source": "GIR 3 opening words + 3(a) (codex/data/gri_rules.csv)"
+    },
+    {
+      "id": "G03",
+      "type": "rule",
+      "hsn": "",
+      "title": "GRI 3(b): essential character of mixtures",
+      "text": "3. When by application of Rule 2 (b) or for any other reason, goods are, prima facie, classifiable under two or more headings, classification shall be effected as follows : (b) Mixtures, composite goods consisting of different materials or made up of different components, and goods put up in sets for retail sale, which cannot be classified by reference to 3 (a), shall be classified as if they consisted of the material or component which gives them their essential character, insofar as this criterion is applicable.",
+      "rate": null,
+      "applies_to": [
+        "all"
+      ],
+      "source": "GIR 3 opening words + 3(b) (codex/data/gri_rules.csv)"
+    },
+    {
+      "id": "G04",
+      "type": "rule",
+      "hsn": "",
+      "title": "Chapter 25 Notes 1 and 2(h): crude products only; NaCl crystals >= 2.5 g go to 3824",
+      "text": "1. Except where their context or Note 4 to this Chapter otherwise requires, the headings of this Chapter cover only products which are in the crude state or which have been washed (even with chemical substances eliminating the impurities without changing the structure of the product), crushed, ground, powdered, levigated, sifted, screened, concentrated by flotation, magnetic separation or other mechanical or physical processes (except crystallization), but not products that have been roasted, calcined, obtained by mixing or subjected to processing beyond that mentioned in each heading. The products of this Chapter may contain an added anti-dusting agent, provided that such addition does not render the product particularly suitable for specific use rather than for general use. | Note 2. This Chapter does not cover : (h) cultured crystals (other than optical elements) weighing not less than 2.5g each, of sodium chloride or of magnesium oxide, of heading 3824; optical elements of sodium chloride or of magnesium oxide (heading 9001);",
+      "rate": null,
+      "applies_to": [
+        "R01",
+        "R04"
+      ],
+      "source": "Customs Tariff Chapter 25 Note 1 and Note 2(h) (Indian mirror, edition unverified; codex/data/classification_rules.csv)"
+    },
+    {
+      "id": "G05",
+      "type": "rule",
+      "hsn": "",
+      "title": "Chapter 34 Note 1: excludes separate chemically defined compounds",
+      "text": "1. This Chapter does not cover : *(a) edible mixtures or preparations of animal, vegetable or microbial fats or oils of a kind used as mould release preparations (heading 1517); (b) separate chemically defined compounds; or (c) shampoos, dentrifices, shaving creams and foams, or bath preparations, containing soap or other organic surface-active agents (heading 3305, 3306 or 3307).",
+      "rate": null,
+      "applies_to": [
+        "R01",
+        "R02"
+      ],
+      "source": "Customs Tariff Chapter 34 Note 1 (Indian mirror, edition unverified; codex/data/classification_rules.csv)"
+    },
+    {
+      "id": "G06",
+      "type": "rule",
+      "hsn": "",
+      "title": "Chapter 34 Note 3: test for 'organic surface-active agents'",
+      "text": "3. For the purposes of heading 3402, \"organic surface-active agents\" are products which when mixed with water at a concentration of 0.5% at 20oC and left to stand for one hour at the same temperature: (a) give a transparent or translucent liquid or stable emulsion without separation of insoluble matter; and (b) reduce the surface tension of water 4.5 X 10-2 N/m (45 dyne/Cm) or less.",
+      "rate": null,
+      "applies_to": [
+        "R02"
+      ],
+      "source": "Customs Tariff Chapter 34 Note 3 (Indian mirror, edition unverified; codex/data/classification_rules.csv)"
+    }
+  ]
+}
