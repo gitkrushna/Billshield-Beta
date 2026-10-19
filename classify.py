@@ -433,7 +433,112 @@ def render(record):
               ("quote_verified", "rule text verified", "rule text not verified"),
               ("no_rival_fits", "no other code fits", "another code could still fit"),
               ("rule_complete", "rule fully in our data", "rule only partly in our data")]
-    lines += ["", "### Confidence: " + record["confidence"] + " (" + str(sum(ticks.values())) + " of 4)",
-              "  ·  ".join(("✓ " + good) if ticks[key] else ("✗ **" + bad + "**") for key, good, bad in labels)]
+    # Only say what is lacking: at 4 of 4 the "Confidence: High" at the top says it all
+    lacking = [bad for key, good, bad in labels if not ticks[key]]
+    if lacking:
+        lines += ["", "### Why confidence is " + record["confidence"]]
+        lines += ["- " + item[0].upper() + item[1:] for item in lacking]
     lines += ["", "_\\* " + DISCLAIMER[2:] + "_"]      # "\*" so Markdown shows the star instead of reading it as italics
     return "\n".join(lines)
+
+
+# ---------- A message the user can copy and send to the seller ----------
+# Built from the checked record with fixed wording (no LLM), so every number in it is one we verified.
+# Empty when there is nothing to ask the seller (Supported, Classified, not covered, couldn't check).
+def product_name(product_facts):
+    found = re.search(r"(?im)^\s*Product:\s*(.+)$", product_facts or "")
+    if found:
+        name = found.group(1).strip()
+    else:   # typed freely: the first line up to the first comma, e.g. "Trichoderma viride 1% WP bio-fungicide"
+        lines = [line for line in (product_facts or "").strip().splitlines() if line.strip() and not line.startswith("FROM THE LABEL")]
+        name = lines[0].split(",")[0].strip() if lines else ""
+    return name[:80] or "this product"
+
+
+def seller_message(record):
+    # Krushna's format: a subject line, the facts on the invoice, our reading (never asserting an error),
+    # numbered questions, and placeholders in [brackets] for what only the user knows.
+    if record.get("status") != "ok" or record["verdict"] in ("Supported", "Classified"):
+        return ""
+    verdict = record["verdict"]
+    row = ROWS_BY_ID[record["expected_rule_id"]]
+    product = product_name(record.get("product_facts"))
+    bill_code, bill_rate = record["bill_hsn"], record["bill_rate"]
+    notification = notification_name(record["rule_source"])
+
+    subject = "Subject: GST classification on Invoice [invoice no.], Order [order ID], [invoice date]"
+    billed = []
+    if bill_code:
+        billed.append("under HSN " + bill_code)
+    if bill_rate is not None:
+        half = show_rate(bill_rate / 2)
+        billed.append("at " + percent(bill_rate) + " GST" + (" (CGST " + half + "% + SGST " + half + "%)" if bill_rate else ""))
+    lines = [subject, "", "Hello,", "",
+             "My invoice from [seller name, GSTIN] lists \"" + product + "\"" + (" " + " ".join(billed) if billed else "") + "."]
+
+    # What the bill's heading covers, if our rules know it: "Heading 3402 covers washing and cleaning preparations."
+    bill_row = rows_for_code(bill_code, bill_rate)
+    reading = []
+    if bill_row and bill_code[:4] != record["expected_hsn"][:4] and verdict != "Need more info":
+        reading.append("Heading " + bill_code[:4] + " covers " + lower_first(short_title(bill_row)) + ".")
+    expected = ("heading " + record["expected_hsn"][:4] + " (\"" + lower_first(short_title(row)) + "\"), "
+                + rate_words(record["expected_rate"]) + " under " + notification)
+
+    if verdict == "Wrong":
+        reading.append("Going by the label, this product appears to fall under " + expected + ".")
+        reading.append("I may be missing a product fact, so I am not asserting an error.")
+        asks = ["Confirm the basis for classifying this product" + (" under " + bill_code[:4] if bill_code else "")
+                + ", and whether it follows the manufacturer's classification.",
+                "Share the product's composition, or point me to it.",
+                "Let me know if the classification is reviewed or corrected."]
+    elif verdict == "Need more info":
+        options = [row] + [ROWS_BY_ID[r] for r in row["rivals"] if r in ROWS_BY_ID and ROWS_BY_ID[r]["rate"] != row["rate"]]
+        choices = ["heading " + row_codes(option)[0][:4] + " (\"" + lower_first(short_title(option)) + "\", "
+                   + rate_words(option["rate"]) + ")" for option in options[:2]]
+        reading.append("Depending on its composition, it could fall under " + " or ".join(choices)
+                       + ". The label does not give enough detail for me to tell which.")
+        asks = ["Share the product's composition, or point me to it." +
+                ("" if not record["missing_facts"] else " In particular: " + " ".join(record["missing_facts"][:2])),
+                "Confirm the basis for the HSN code and rate on the invoice.",
+                "Let me know if the classification is reviewed or corrected."]
+    elif verdict == "Disputable":
+        dispute = next((d for d in row.get("disputes", []) if codes_match(bill_code or "", only_digits(d["hsn"]))), None)
+        cited = dispute["source"].split(":")[0] if dispute else "some rulings"
+        reading.append("Going by the label, this product appears to fall under " + expected + ".")
+        reading.append("I understand there is a different view (" + cited + "), so I am not asserting an error.")
+        asks = ["Confirm the basis for the classification, and which ruling or circular you rely on.",
+                "Let me know if the classification is reviewed or corrected."]
+    else:   # Rate right, HSN wrong
+        reading.append("The GST rate matches, but going by the label the product appears to fall under " + expected + ".")
+        asks = ["Confirm the basis for the HSN code on the invoice.",
+                "Correct the HSN code on the invoice if it should be " + record["expected_hsn"] + "."]
+
+    lines += [""] + [" ".join(reading), "", "Could you please:"]
+    lines += [str(number) + ". " + ask for number, ask in enumerate(asks, 1)]
+    lines += ["", "I'm asking for clarification, not a refund. Please forward this to your tax or catalogue team if needed.",
+              "", "Thank you,", "[Name]", "[phone / email]"]
+    return "\n".join(lines)
+
+
+def lower_first(text):
+    return text[0].lower() + text[1:] if text else text
+
+
+def rate_words(rate):
+    return "nil-rated" if rate == 0 else "taxed at " + percent(rate) + " GST"
+
+
+# "Notif 10/2025-CT(Rate) (exemption, nil), S.No. 109" -> "Notification 10/2025-Central Tax (Rate)"
+def notification_name(source):
+    found = re.search(r"Notif\w*\s+(\d+/\d{4})", source)
+    return "Notification " + found.group(1) + "-Central Tax (Rate)" if found else "the GST rate notification"
+
+
+# The row our rules have for the bill's code (same first 4 digits), preferring one with the bill's rate
+def rows_for_code(bill_code, bill_rate):
+    if not bill_code or len(bill_code) < 4:
+        return None
+    matches = [row for row in RULES["rows"] if row.get("type") != "rule"
+               and any(code[:4] == bill_code[:4] for code in row_codes(row) if len(code) >= 4)]
+    same_rate = [row for row in matches if row["rate"] == bill_rate]
+    return (same_rate or matches or [None])[0]

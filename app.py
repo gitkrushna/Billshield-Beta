@@ -181,21 +181,22 @@ def read_label(label_photo, current_details):
     try:
         label = ask_deepseek_about_file(file_from_browser_to_bytes(label_photo), LABEL_INSTRUCTION)
 
-        # One fact per line, so the user can check and fix it at a glance. Claims become a bullet list.
+        # One fact per line with a CAPITAL label and a blank line between facts, so the user can check and
+        # fix it at a glance (the box is plain text, so capitals stand in for bold). Claims become a bullet list.
         raw_claims = label.get("other_claims")
         if not isinstance(raw_claims, list):
             raw_claims = re.split(r";|\n", clean_text(raw_claims))
         claims = [clean_text(claim).strip(" .") for claim in raw_claims if clean_text(claim).strip(" .")]
         label_lines = [
             LABEL_SECTION_HEADER,
-            "Product: " + (clean_text(label.get("product_name")) or "not stated"),
-            "Ingredients: " + (clean_text(label.get("ingredients")) or "not stated on the label"),
-            "Form: " + (clean_text(label.get("form")) or "not stated"),
-            "Used for: " + (clean_text(label.get("intended_use")) or "not stated"),
-            "Registration: " + (clean_text(label.get("registration")) or "not stated"),
-            "Label claims:" + ("" if claims else " none"),
-        ] + ["  • " + claim for claim in claims[:10]]
-        details_from_label = remove_tax_codes("\n".join(label_lines))
+            "PRODUCT: " + (clean_text(label.get("product_name")) or "not stated"),
+            "INGREDIENTS: " + (clean_text(label.get("ingredients")) or "not stated on the label"),
+            "FORM: " + (clean_text(label.get("form")) or "not stated"),
+            "USED FOR: " + (clean_text(label.get("intended_use")) or "not stated"),
+            "REGISTRATION: " + (clean_text(label.get("registration")) or "not stated"),
+            "\n".join(["LABEL CLAIMS:" + ("" if claims else " none")] + ["  • " + claim for claim in claims[:10]]),
+        ]
+        details_from_label = remove_tax_codes("\n\n".join(label_lines))
 
         # Keep what the user typed. If an earlier label was read, replace that part instead of adding it twice.
         typed_by_user = current_details.split(LABEL_SECTION_HEADER)[0].strip()
@@ -329,14 +330,20 @@ def clear_all(clear_count):
 def check_bill(product_details, bill_hsn_code, bill_gst_rate, user_name=""):
     product_details = (product_details or "").strip()
     if not product_details:
-        return "Add the product details first. Type them, or upload a label photo to fill them in."
+        return "Add the product details first. Type them, or upload a label photo to fill them in.", gr.update(value="", visible=False)
 
     # The classifier will only ever see the product details, with any tax codes removed (blind check)
     facts_for_classifier = remove_tax_codes(product_details)
     record = classify.run_check(facts_for_classifier, bill_hsn_code, bill_gst_rate, ask_deepseek_for_json, DEEPSEEK_MODEL)
     record["user_name"] = (user_name or "").strip() or None
     not_saved = store.save_check(record)
-    return classify.render(record) + ("\n\n_(" + not_saved + ")_" if not_saved else "")
+    result = classify.render(record) + ("\n\n_(" + not_saved + ")_" if not_saved else "")
+    message = classify.seller_message(record)
+    return result, gr.update(value=message, visible=bool(message))
+
+
+def hide_seller_message():
+    return gr.update(value="", visible=False)
 
 
 # "Show my checks": the last 20 checks saved under the typed name
@@ -548,6 +555,12 @@ with gr.Blocks(title="BillShield: GST Check") as page:
                 RESULT_PLACEHOLDER, label="Result", show_label=True, container=True, padding=True,
                 min_height=560, elem_id="answer",
             )
+            # Shown only when there is something to ask the seller (Wrong, Disputable, HSN wrong, Need more info)
+            seller_message_box = gr.Textbox(
+                label="Message to the seller (copy and send)",
+                info="Check it before sending. Edit anything you like.",
+                lines=9, max_lines=20, visible=False, buttons=["copy"], interactive=True,
+            )
 
     # My checks: what was saved under the name above
     with gr.Accordion("My checks", open=False):
@@ -601,7 +614,7 @@ with gr.Blocks(title="BillShield: GST Check") as page:
         load_example,
         outputs=[label_photo, bill_photo, product_details_box, bill_hsn_box, bill_gst_box, answer_box, label_status, bill_status],
         queue=False,
-    )
+    ).then(hide_seller_message, outputs=seller_message_box, queue=False)
 
     # Clear all also counts up clear_count, so answers still on their way are thrown away
     clear_all_button.click(
@@ -610,12 +623,12 @@ with gr.Blocks(title="BillShield: GST Check") as page:
         outputs=[label_photo, bill_photo, product_details_box, bill_hsn_box, bill_gst_box,
                  answer_box, label_status, bill_status, check_button, label_busy, bill_busy, clear_count],
         queue=False,
-    )
+    ).then(hide_seller_message, outputs=seller_message_box, queue=False)
 
     check_button.click(
         check_bill,
         inputs=[product_details_box, bill_hsn_box, bill_gst_box, user_name_box],
-        outputs=answer_box,
+        outputs=[answer_box, seller_message_box],
         queue=False,
     )
 
