@@ -381,56 +381,59 @@ def possible_outcomes(record):
     for option in options[:3]:
         verdict_part = bill_against(option["rate"], record["bill_rate"])
         title = short_title(option)
-        lines.append("• If it is " + title[0].lower() + title[1:] + " → HSN " + row_codes(option)[0]
-                     + " at " + percent(option["rate"]) + (" (" + verdict_part + ")" if verdict_part else ""))
+        lines.append("• If it is " + title[0].lower() + title[1:] + " → **HSN " + row_codes(option)[0]
+                     + " at " + percent(option["rate"]) + "**" + (" (" + verdict_part + ")" if verdict_part else ""))
     return lines
 
 
 def render(record):
+    # Markdown, so headings and the numbers that matter can be bold
     if record["status"] == "couldnt_check":
-        return "⚠️ COULDN'T CHECK\n\n" + record["next_step"]
+        return "## ⚠️ Couldn't check\n\n" + record["next_step"]
     if record["status"] == "not_covered":
         chapter = record.get("likely_chapter")
-        return ("❓ NOT COVERED YET\n\n"
-                + "WHAT TO DO\n• We can't judge this product yet: our rules don't cover it"
-                + (" (it looks like chapter " + chapter + ")" if chapter else "") + ".\n"
-                + "• Check the GST rate schedule for it, or ask a CA.\n\n"
-                + "WHY\n" + (record.get("reason") or "") + "\n\n* Decision support, not a ruling.")
+        return ("## ❓ Not covered yet\n\n"
+                + "### What to do\n"
+                + "- **We can't judge this product yet:** our rules don't cover it"
+                + (" (it looks like **chapter " + chapter + "**)" if chapter else "") + ".\n"
+                + "- Check the GST rate schedule for it, or ask a CA.\n\n"
+                + "### Why\n" + (record.get("reason") or "") + "\n\n*Decision support, not a ruling.*")
 
     verdict = record["verdict"]
-    lines = [VERDICT_ICONS.get(verdict, "") + " " + verdict.upper() + "    ·    Confidence: " + record["confidence"], ""]
+    lines = ["## " + VERDICT_ICONS.get(verdict, "") + " " + verdict, "Confidence: **" + record["confidence"] + "**", ""]
 
-    lines.append("WHAT TO DO")
-    lines += ["• " + step for step in what_to_do(record)]
+    lines.append("### What to do")
+    lines += ["- " + step for step in what_to_do(record)]
 
     if record["missing_facts"]:
-        lines += ["", "WHAT'S MISSING" if verdict == "Need more info" else "WOULD MAKE IT SURER"]
-        lines += ["• " + question for question in record["missing_facts"][:4]]
+        lines += ["", "### What's missing" if verdict == "Need more info" else "### Would make it surer"]
+        lines += ["- " + question for question in record["missing_facts"][:4]]
     if verdict == "Need more info":
-        lines += ["", "WHAT EACH ANSWER MEANS"] + possible_outcomes(record)
+        lines += ["", "### What each answer means"] + ["- " + line[2:] for line in possible_outcomes(record)]
 
-    lines += ["", "RESULT"]
-    lines.append("Expected:   HSN " + record["expected_hsn"] + " · " + percent(record["expected_rate"]) + "*   (" + short_title(ROWS_BY_ID[record["expected_rule_id"]]) + ")")
+    lines += ["", "### Result", "| | HSN code | GST |", "|---|---|---|",
+              "| **Expected** | **" + record["expected_hsn"] + "** | **" + percent(record["expected_rate"]) + "**\\* |"]
     if record["bill_hsn"] or record["bill_rate"] is not None:
-        lines.append("Your bill:  HSN " + (record["bill_hsn"] or "not given") + " · "
-                     + (percent(record["bill_rate"]) if record["bill_rate"] is not None else "rate not given"))
+        lines.append("| Your bill | " + (record["bill_hsn"] or "not given") + " | "
+                     + (percent(record["bill_rate"]) if record["bill_rate"] is not None else "not given") + " |")
+    lines += ["", "Expected category: **" + short_title(ROWS_BY_ID[record["expected_rule_id"]]) + "**"]
 
-    lines += ["", "WHY", record.get("reason") or ""]
+    lines += ["", "### Why", record.get("reason") or ""]
     verified = [q for q in record["quotes"] if q["verified"]]
     if verified:
-        lines.append("Rule: \"" + verified[0]["text"] + "\"  (" + short_source(record["rule_source"]) + ")")
+        lines += ["", "> \"" + verified[0]["text"] + "\"  \n> " + short_source(record["rule_source"])]
     rejected = [short_title(ROWS_BY_ID[r["rule_id"]]) for r in record["rivals"] if r["fits"] is False and r["rule_id"] in ROWS_BY_ID]
     if rejected:
-        lines.append("Ruled out: " + "; ".join(rejected))
+        lines += ["", "**Ruled out:** " + "; ".join(rejected)]
     if record["assumed_facts"]:
-        lines.append("Assumed (not on your label, please check): " + "; ".join(record["assumed_facts"]))
+        lines += ["", "**Assumed (not on your label, please check):** " + "; ".join(record["assumed_facts"])]
 
     ticks = record["checklist"]
     labels = [("facts_complete", "all facts given", "facts missing"),
               ("quote_verified", "rule text verified", "rule text not verified"),
               ("no_rival_fits", "no other code fits", "another code could still fit"),
               ("rule_complete", "rule fully in our data", "rule only partly in our data")]
-    lines += ["", "CONFIDENCE: " + record["confidence"] + " (" + str(sum(ticks.values())) + " of 4)  "
-              + "  ".join(("✓ " + good) if ticks[key] else ("✗ " + bad) for key, good, bad in labels)]
-    lines += ["", DISCLAIMER]
+    lines += ["", "### Confidence: " + record["confidence"] + " (" + str(sum(ticks.values())) + " of 4)",
+              "  ·  ".join(("✓ " + good) if ticks[key] else ("✗ **" + bad + "**") for key, good, bad in labels)]
+    lines += ["", "_\\* " + DISCLAIMER[2:] + "_"]      # "\*" so Markdown shows the star instead of reading it as italics
     return "\n".join(lines)

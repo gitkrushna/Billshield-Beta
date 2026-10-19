@@ -187,11 +187,11 @@ def read_label(label_photo, current_details):
         claims = [clean_text(claim).strip(" .") for claim in raw_claims if clean_text(claim).strip(" .")]
         label_lines = [
             LABEL_SECTION_HEADER,
-            "Product:       " + (clean_text(label.get("product_name")) or "not stated"),
-            "Ingredients:   " + (clean_text(label.get("ingredients")) or "not stated on the label"),
-            "Form:          " + (clean_text(label.get("form")) or "not stated"),
-            "Used for:      " + (clean_text(label.get("intended_use")) or "not stated"),
-            "Registration:  " + (clean_text(label.get("registration")) or "not stated"),
+            "Product: " + (clean_text(label.get("product_name")) or "not stated"),
+            "Ingredients: " + (clean_text(label.get("ingredients")) or "not stated on the label"),
+            "Form: " + (clean_text(label.get("form")) or "not stated"),
+            "Used for: " + (clean_text(label.get("intended_use")) or "not stated"),
+            "Registration: " + (clean_text(label.get("registration")) or "not stated"),
             "Label claims:" + ("" if claims else " none"),
         ] + ["  • " + claim for claim in claims[:10]]
         details_from_label = remove_tax_codes("\n".join(label_lines))
@@ -300,6 +300,10 @@ def empty_file_box():
     return gr.update(value=None, problem="")
 
 
+RESULT_PLACEHOLDER = ("*The correct HSN code and GST rate appear here, with the reason and what to do next. "
+                      "If you added a bill, you'll also see whether it matches.*")
+
+
 # Fill the form with a ready-made example so first-time users can try it instantly
 def load_example():
     example_details = (
@@ -310,12 +314,13 @@ def load_example():
         "Registration: Bio-stimulant, FCO Schedule VI\n"
         "Other: Pre-packed and labelled 1 litre bottle. Contains no plant growth regulators"
     )
-    return empty_file_box(), empty_file_box(), example_details, "3808", "18", "", "Example filled in. Click **Check GST code**.", ""
+    return (empty_file_box(), empty_file_box(), example_details, "3808", "18", RESULT_PLACEHOLDER,
+            "Example filled in. Click **Check GST code**.", "")
 
 
 # Clear every box and switch Check back on. Counting the clears throws away answers still on their way.
 def clear_all(clear_count):
-    return (empty_file_box(), empty_file_box(), "", "", None, "", "", "",
+    return (empty_file_box(), empty_file_box(), "", "", None, RESULT_PLACEHOLDER, "", "",
             gr.update(interactive=True), False, False, (clear_count or 0) + 1)
 
 
@@ -330,7 +335,7 @@ def check_bill(product_details, bill_hsn_code, bill_gst_rate, user_name=""):
     record = classify.run_check(facts_for_classifier, bill_hsn_code, bill_gst_rate, ask_deepseek_for_json, DEEPSEEK_MODEL)
     record["user_name"] = (user_name or "").strip() or None
     not_saved = store.save_check(record)
-    return classify.render(record) + ("\n(" + not_saved + ")" if not_saved else "")
+    return classify.render(record) + ("\n\n_(" + not_saved + ")_" if not_saved else "")
 
 
 # "Show my checks": the last 20 checks saved under the typed name
@@ -457,8 +462,8 @@ PAGE_STYLE = """
 .gradio-container {max-width: 1100px !important; margin: auto !important;}
 .file-box-holder .html-container {padding: 0 !important;}
 #upload-hint, #upload-hint p {font-size: 13px; opacity: 0.75; margin-top: -4px;}
-#answer textarea {min-height: 560px;}
-@media (max-width: 700px) { #answer textarea {min-height: 260px;} }
+#answer table {width: 100%;}
+@media (max-width: 700px) { #answer {min-height: 260px !important;} }
 """
 
 with gr.Blocks(title="BillShield") as page:
@@ -524,13 +529,10 @@ with gr.Blocks(title="BillShield") as page:
 
         # Right: the answer
         with gr.Column(scale=2):
-            answer_box = gr.Textbox(
-                label="Result",
-                placeholder="The correct HSN code and GST rate appear here, with the reason and what to do next. "
-                            "If you added a bill, you'll also see whether it matches.",
-                lines=24,
-                max_lines=40,
-                elem_id="answer",
+            # Markdown (not a text box), so the result can use bold, headings, bullets and a small table
+            answer_box = gr.Markdown(
+                RESULT_PLACEHOLDER, label="Result", show_label=True, container=True, padding=True,
+                min_height=560, elem_id="answer",
             )
 
     # My checks: what was saved under the name above
