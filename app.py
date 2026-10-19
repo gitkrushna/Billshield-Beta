@@ -463,10 +463,12 @@ PAGE_STYLE = """
 .file-box-holder .html-container {padding: 0 !important;}
 #upload-hint, #upload-hint p {font-size: 13px; opacity: 0.75; margin-top: -4px;}
 #answer table {width: 100%;}
+.page-title {font-size: 2em; font-weight: 700; margin: 0;}
+.gst-word {color: #E50914;}
 @media (max-width: 700px) { #answer {min-height: 260px !important;} }
 """
 
-with gr.Blocks(title="BillShield") as page:
+with gr.Blocks(title="BillShield: GST Check") as page:
     # Hidden boxes. They live in the browser (not on the server), so every request carries them.
     label_busy = gr.Checkbox(False, visible=False)     # the label photo is being read
     bill_busy = gr.Checkbox(False, visible=False)      # the bill is being read
@@ -474,8 +476,9 @@ with gr.Blocks(title="BillShield") as page:
     label_answer = gr.JSON(visible=False)    # what the label reading found, until it goes on the page
     bill_answer = gr.JSON(visible=False)     # what the bill reading found, until it goes on the page
 
+    # HTML (not Markdown) so "GST" can have its own colour: Netflix red, #E50914
+    gr.HTML('<h1 class="page-title">BillShield: <span class="gst-word">GST</span> Check</h1>')
     gr.Markdown(
-        "# BillShield\n"
         "Find the right HSN code and GST rate for a product, and see if a bill got it right. "
         "**All you need is the product details.** Photos just fill in the boxes for you."
     )
