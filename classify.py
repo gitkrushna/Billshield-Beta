@@ -487,9 +487,15 @@ def seller_message(record):
     if verdict == "Wrong":
         reading.append("Going by the label, this product appears to fall under " + expected + ".")
         reading.append("I may be missing a product fact, so I am not asserting an error.")
-        asks = ["Confirm the basis for classifying this product" + (" under " + bill_code[:4] if bill_code else "")
-                + ", and whether it follows the manufacturer's classification.",
-                "Share the product's composition, or point me to it.",
+        same_heading = bool(bill_code) and bill_code[:4] == record["expected_hsn"][:4]
+        if same_heading:     # the code is fine, the rate is the question (e.g. 8424 at 18% instead of 5%)
+            first_ask = ("Confirm the basis for charging " + (percent(bill_rate) if bill_rate is not None else "this rate")
+                         + " GST on this product, and which entry of the rate notification it follows.")
+        else:
+            first_ask = ("Confirm the basis for classifying this product" + (" under " + bill_code[:4] if bill_code else "")
+                         + ", and whether it follows the manufacturer's classification.")
+        asks = [first_ask,
+                "Share the product's composition or specifications, or point me to them.",
                 "Let me know if the classification is reviewed or corrected."]
     elif verdict == "Need more info":
         options = [row] + [ROWS_BY_ID[r] for r in row["rivals"] if r in ROWS_BY_ID and ROWS_BY_ID[r]["rate"] != row["rate"]]
