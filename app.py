@@ -8,6 +8,7 @@ import gradio as gr
 import pypdfium2
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from openai import OpenAI
 from PIL import Image, ImageOps
 
@@ -467,6 +468,16 @@ PAGE_STYLE = """
 .gst-word {color: #E50914;}
 @media (max-width: 700px) { #answer {min-height: 260px !important;} }
 """
+
+# Dark mode by default. Gradio picks the theme from "?__theme=dark|light" in the link, otherwise from the
+# device's setting, and it decides before any script of ours could run. So the server sends a plain
+# visit to "/" on to "/?__theme=dark" first. "?__theme=light" still works for anyone who wants light.
+@app.middleware("http")
+async def dark_by_default(request, call_next):
+    if request.method == "GET" and request.url.path == "/" and "__theme" not in request.query_params:
+        return RedirectResponse(str(request.url.include_query_params(__theme="dark")), status_code=307)
+    return await call_next(request)
+
 
 with gr.Blocks(title="BillShield: GST Check") as page:
     # Hidden boxes. They live in the browser (not on the server), so every request carries them.
