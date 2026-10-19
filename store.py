@@ -63,7 +63,8 @@ def my_checks(user_name):
         return [], "Couldn't load your checks: " + str(error)[:120]
     rows = []
     for check in response.json():
-        product = (check["product_facts"] or "").replace("--- From the label photo ---", "").strip().splitlines()
+        product = (check["product_facts"] or "").strip().splitlines()
+        product = [line.replace("Product:", "").strip() for line in product if line.strip() and not line.startswith(("---", "FROM THE LABEL"))]
         rows.append([
             check["created_at"][:16].replace("T", " "),
             (product[0] if product else "")[:60],

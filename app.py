@@ -146,9 +146,11 @@ Read this product label. Reply with JSON only, using exactly these keys:
   "form": "liquid, powder, granules, machine, etc.",
   "intended_use": "",
   "registration": "any registration or licence mentioned",
-  "other_claims": "anything else important on the label"
+  "other_claims": ["each other important claim as a short phrase, e.g. 99% purity"]
 }
 Write "not stated" if something is not on the label.
+ingredients: ONLY what the label prints as an ingredient or composition list, copied exactly. A purity or quality
+claim (e.g. "99% purity") is NOT an ingredient list: put it in other_claims and write "not stated" for ingredients.
 Do not include any HSN code, tax rate or price.
 """
 
@@ -166,7 +168,7 @@ Read this bill or invoice. Reply with JSON only, using exactly these keys:
 Write "not stated" if something is not on the bill.
 """
 
-LABEL_SECTION_HEADER = "--- From the label photo ---"
+LABEL_SECTION_HEADER = "FROM THE LABEL PHOTO (check and fix if anything is wrong)"
 
 
 # Label photo -> what goes in the Product details box, and a message.
@@ -178,15 +180,20 @@ def read_label(label_photo, current_details):
     try:
         label = ask_deepseek_about_file(file_from_browser_to_bytes(label_photo), LABEL_INSTRUCTION)
 
+        # One fact per line, so the user can check and fix it at a glance. Claims become a bullet list.
+        raw_claims = label.get("other_claims")
+        if not isinstance(raw_claims, list):
+            raw_claims = re.split(r";|\n", clean_text(raw_claims))
+        claims = [clean_text(claim).strip(" .") for claim in raw_claims if clean_text(claim).strip(" .")]
         label_lines = [
             LABEL_SECTION_HEADER,
-            "Product: " + (clean_text(label.get("product_name")) or "not stated"),
-            "Ingredients: " + (clean_text(label.get("ingredients")) or "not stated"),
-            "Form: " + (clean_text(label.get("form")) or "not stated"),
-            "Use: " + (clean_text(label.get("intended_use")) or "not stated"),
-            "Registration: " + (clean_text(label.get("registration")) or "not stated"),
-            "Other: " + (clean_text(label.get("other_claims")) or "not stated"),
-        ]
+            "Product:       " + (clean_text(label.get("product_name")) or "not stated"),
+            "Ingredients:   " + (clean_text(label.get("ingredients")) or "not stated on the label"),
+            "Form:          " + (clean_text(label.get("form")) or "not stated"),
+            "Used for:      " + (clean_text(label.get("intended_use")) or "not stated"),
+            "Registration:  " + (clean_text(label.get("registration")) or "not stated"),
+            "Label claims:" + ("" if claims else " none"),
+        ] + ["  • " + claim for claim in claims[:10]]
         details_from_label = remove_tax_codes("\n".join(label_lines))
 
         # Keep what the user typed. If an earlier label was read, replace that part instead of adding it twice.

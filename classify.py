@@ -315,45 +315,122 @@ def run_check(product_facts, bill_hsn_code, bill_gst_rate, ask_deepseek_for_json
 
 
 # ---------- What the user sees ----------
+# Order: verdict -> what to do -> what's missing -> the numbers -> why -> confidence.
+# The user reads the top first, so the actions come before the reasoning.
+VERDICT_ICONS = {"Supported": "✅", "Classified": "✅", "Rate right, HSN wrong": "🟡", "Wrong": "❌",
+                 "Disputable": "⚖️", "Need more info": "❓"}
+DISCLAIMER = "* Rate from our rules file (Notif 9/2025 and 10/2025). Demo data, not certified. Decision support, not a ruling."
+
+
+# "Salt and pure sodium chloride (incl. ...)" -> "Salt and pure sodium chloride"
+def short_title(row):
+    return re.split(r" \(|; ", row["title"])[0]
+
+
+# Drop notes in brackets that are for us, not the user, e.g. "(rate)" or "(pdf text glued ...)"
+def short_source(source):
+    return re.sub(r"\s*\((?:rate|pdf[^)]*|exemption, nil)(?:\)|$)", "", source.split(";")[0]).strip()
+
+
+def percent(rate):
+    return show_rate(rate) + "%"
+
+
+# What the bill would mean under one row: "the bill's 18% is right" / "... is too high"
+def bill_against(rate, bill_rate):
+    if bill_rate is None:
+        return ""
+    if bill_rate == rate:
+        return "the bill's " + percent(bill_rate) + " is right"
+    return "the bill's " + percent(bill_rate) + " is too " + ("high" if bill_rate > rate else "low")
+
+
+def what_to_do(record):
+    verdict, code, rate = record["verdict"], record["expected_hsn"], record["expected_rate"]
+    bill_code, bill_rate = record["bill_hsn"], record["bill_rate"]
+    if verdict == "Need more info":
+        return ["Find the answers to the questions below (on the pack, or ask the seller), add them to Product details, and check again."]
+    if verdict == "Wrong":
+        steps = ["Ask the seller why they charged " + ("HSN " + bill_code + " at " if bill_code else "") + percent(bill_rate)
+                 + " and not HSN " + code + " at " + percent(rate) + "."]
+        if bill_rate > rate:
+            steps.append("If " + percent(rate) + " is right, you paid about ₹" + show_rate(bill_rate - rate)
+                         + " too much GST on every ₹100 of price.")
+        else:
+            steps.append("The seller charged less GST than expected; the bill may need correcting.")
+        return steps
+    if verdict == "Rate right, HSN wrong":
+        return ["The tax amount is right. Ask the seller to correct the HSN code on the bill to " + code + "."]
+    if verdict == "Disputable":
+        dispute = next((d for d in ROWS_BY_ID[record["expected_rule_id"]].get("disputes", [])
+                        if codes_match(bill_code or "", only_digits(d["hsn"]))), None)
+        cited = dispute["source"].split(":")[0] if dispute else "a ruling"
+        return ["Grey area: we expect " + percent(rate) + ", but the seller's " + percent(bill_rate)
+                + " can be defended (" + cited + ").",
+                "Ask the seller which ruling or circular they rely on for " + percent(bill_rate) + "."]
+    if verdict == "Classified":
+        return ["Use HSN " + code + " at " + percent(rate) + " GST."]
+    return [record["next_step"]]          # Supported
+
+
+# For "Need more info": what each possible answer would lead to, so the user sees why the question matters
+def possible_outcomes(record):
+    row = ROWS_BY_ID[record["expected_rule_id"]]
+    options = [row] + [ROWS_BY_ID[r] for r in row["rivals"] if r in ROWS_BY_ID and ROWS_BY_ID[r]["rate"] != row["rate"]]
+    lines = []
+    for option in options[:3]:
+        verdict_part = bill_against(option["rate"], record["bill_rate"])
+        title = short_title(option)
+        lines.append("• If it is " + title[0].lower() + title[1:] + " → HSN " + row_codes(option)[0]
+                     + " at " + percent(option["rate"]) + (" (" + verdict_part + ")" if verdict_part else ""))
+    return lines
+
+
 def render(record):
     if record["status"] == "couldnt_check":
-        return "COULDN'T CHECK\n\n" + record["next_step"]
+        return "⚠️ COULDN'T CHECK\n\n" + record["next_step"]
     if record["status"] == "not_covered":
-        return ("NEED MORE INFO\n\n" + record["next_step"] + "\n\nWhy: " + (record.get("reason") or "")
-                + "\n\n* Decision support, not a ruling.")
+        chapter = record.get("likely_chapter")
+        return ("❓ NOT COVERED YET\n\n"
+                + "WHAT TO DO\n• We can't judge this product yet: our rules don't cover it"
+                + (" (it looks like chapter " + chapter + ")" if chapter else "") + ".\n"
+                + "• Check the GST rate schedule for it, or ask a CA.\n\n"
+                + "WHY\n" + (record.get("reason") or "") + "\n\n* Decision support, not a ruling.")
 
-    bill = ("HSN " + (record["bill_hsn"] or "not given") + " · "
-            + (show_rate(record["bill_rate"]) + "%" if record["bill_rate"] is not None else "rate not given"))
-    lines = [
-        record["verdict"].upper() + "        Confidence: " + record["confidence"],
-        "",
-        "Expected:  HSN " + record["expected_hsn"] + " · " + show_rate(record["expected_rate"]) + "%*",
-        "           (" + record["rule_title"] + ")",
-    ]
+    verdict = record["verdict"]
+    lines = [VERDICT_ICONS.get(verdict, "") + " " + verdict.upper() + "    ·    Confidence: " + record["confidence"], ""]
+
+    lines.append("WHAT TO DO")
+    lines += ["• " + step for step in what_to_do(record)]
+
+    if record["missing_facts"]:
+        lines += ["", "WHAT'S MISSING" if verdict == "Need more info" else "WOULD MAKE IT SURER"]
+        lines += ["• " + question for question in record["missing_facts"][:4]]
+    if verdict == "Need more info":
+        lines += ["", "WHAT EACH ANSWER MEANS"] + possible_outcomes(record)
+
+    lines += ["", "RESULT"]
+    lines.append("Expected:   HSN " + record["expected_hsn"] + " · " + percent(record["expected_rate"]) + "*   (" + short_title(ROWS_BY_ID[record["expected_rule_id"]]) + ")")
     if record["bill_hsn"] or record["bill_rate"] is not None:
-        lines.append("Bill:      " + bill)
-    lines += ["", "Why: " + (record.get("reason") or "")]
+        lines.append("Your bill:  HSN " + (record["bill_hsn"] or "not given") + " · "
+                     + (percent(record["bill_rate"]) if record["bill_rate"] is not None else "rate not given"))
+
+    lines += ["", "WHY", record.get("reason") or ""]
     verified = [q for q in record["quotes"] if q["verified"]]
     if verified:
-        lines.append("Rule text: \"" + verified[0]["text"] + "\"")
-    lines.append("Source: " + record["rule_source"].split(";")[0])
-    rejected = [ROWS_BY_ID[r["rule_id"]]["title"] for r in record["rivals"]
-                if r["fits"] is False and r["rule_id"] in ROWS_BY_ID]
+        lines.append("Rule: \"" + verified[0]["text"] + "\"  (" + short_source(record["rule_source"]) + ")")
+    rejected = [short_title(ROWS_BY_ID[r["rule_id"]]) for r in record["rivals"] if r["fits"] is False and r["rule_id"] in ROWS_BY_ID]
     if rejected:
-        lines.append("Rivals rejected: " + "; ".join(rejected))
-    missing = "" if record["verdict"] == "Need more info" else " · Missing: " + (" ".join(record["missing_facts"]) or "none")
-    lines.append("Assumed: " + (", ".join(record["assumed_facts"]) or "none") + missing)
+        lines.append("Ruled out: " + "; ".join(rejected))
+    if record["assumed_facts"]:
+        lines.append("Assumed (not on your label, please check): " + "; ".join(record["assumed_facts"]))
+
     ticks = record["checklist"]
-    lines += [
-        "",
-        "Confidence checklist: "
-        + ("✓" if ticks["facts_complete"] else "✗") + " all facts given  "
-        + ("✓" if ticks["quote_verified"] else "✗") + " quote verified  "
-        + ("✓" if ticks["no_rival_fits"] else "✗") + " no rival fits  "
-        + ("✓" if ticks["rule_complete"] else "✗") + " rule complete",
-        "",
-        "Next step: " + record["next_step"],
-        "",
-        "* Rate from our rules file (Notif 9/2025 and 10/2025). Demo data, not certified. Decision support, not a ruling.",
-    ]
+    labels = [("facts_complete", "all facts given", "facts missing"),
+              ("quote_verified", "rule text verified", "rule text not verified"),
+              ("no_rival_fits", "no other code fits", "another code could still fit"),
+              ("rule_complete", "rule fully in our data", "rule only partly in our data")]
+    lines += ["", "CONFIDENCE: " + record["confidence"] + " (" + str(sum(ticks.values())) + " of 4)  "
+              + "  ".join(("✓ " + good) if ticks[key] else ("✗ " + bad) for key, good, bad in labels)]
+    lines += ["", DISCLAIMER]
     return "\n".join(lines)
