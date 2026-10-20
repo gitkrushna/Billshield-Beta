@@ -312,8 +312,9 @@ def empty_file_box():
     return gr.update(value=None, problem="")
 
 
-RESULT_PLACEHOLDER = ("*The correct HSN code and GST rate appear here, with the reason and what to do next. "
-                      "If you added a bill, you'll also see whether it matches.*")
+RESULT_PLACEHOLDER = ("*Your answer appears here, with the reason and what to do next.*\n\n"
+                      "- *Product only: the right HSN code and GST rate.*\n"
+                      "- *With a bill: whether the bill is right.*")
 
 
 # Fill the form with a ready-made example so first-time users can try it instantly
@@ -378,6 +379,7 @@ FILE_BOX_HTML = """
     <span>${value && value.name ? "📄 " + value.name : "Drop File Here"}</span>
     <span class="file-box-small">${value && value.name ? "Click to choose another file" : "- or -"}</span>
     <span>${value && value.name ? "" : "Click to Upload"}</span>
+    <span class="file-box-limit">${value && value.name ? "" : limit_text}</span>
     <span class="file-box-problem">${problem}</span>
   </label>
 </div>
@@ -394,6 +396,7 @@ FILE_BOX_STYLE = """
                 color: var(--body-text-color-subdued); font-size: var(--text-lg); line-height: 1.45;}
 .file-box-drop input {position: absolute; width: 1px; height: 1px; opacity: 0;}
 .file-box-small {font-size: var(--text-md); opacity: 0.8;}
+.file-box-limit {font-size: 12px; opacity: 0.7; margin-top: 4px;}
 .file-box-problem {font-size: 13px; color: var(--error-text-color, #dc2626);}
 """
 
@@ -460,13 +463,14 @@ element.addEventListener("drop", event => {
 """
 
 
-def file_box(box_title, file_types):
+def file_box(box_title, file_types, limit_text):
     return gr.HTML(
         value=None,
         html_template=FILE_BOX_HTML,
         css_template=FILE_BOX_STYLE,
         js_on_load=FILE_BOX_JS,
         box_title=box_title,
+        limit_text=limit_text,
         accept=",".join(file_types),
         problem="",
         max_photo_mb=MAX_FILE_MB,
@@ -479,7 +483,17 @@ def file_box(box_title, file_types):
 PAGE_STYLE = """
 .gradio-container {max-width: 1100px !important; margin: auto !important;}
 .file-box-holder .html-container {padding: 0 !important;}
-#upload-hint, #upload-hint p {font-size: 13px; opacity: 0.75; margin-top: -4px;}
+.status-line:not(:has(p)) {display: none !important;}   /* no gap while there is no status to show */
+.card {flex: none !important;}
+/* Photo boxes as tall as the fields next to them */
+.photo-col > .file-box-holder {flex: 1 1 auto !important; display: flex !important; flex-direction: column;}
+.photo-col .html-container, .photo-col .html-container > div {flex: 1; display: flex; flex-direction: column;}
+.photo-col .file-box {flex: 1; height: auto; min-height: 150px;}           /* cards keep their own height when the answer is long */
+.card-title {font-size: 1.15em; font-weight: 700;}
+.card-line {font-size: 14px; opacity: 0.8; margin-top: 2px;}
+.tag {font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle;}
+.tag-required {background: #FF8C00; color: #111;}
+.tag-optional {background: #64748b; color: #fff;}
 #answer table {width: 100%;}
 .page-title {font-size: 2em; font-weight: 700; margin: 0;}
 .gst-word {color: #E50914;}
@@ -532,45 +546,53 @@ with gr.Blocks(title="BillShield: GST Check") as page:
     with gr.Row(equal_height=True):
         # Left: what the user fills in
         with gr.Column(scale=3):
-            with gr.Row(equal_height=True):
-                label_photo = file_box("Label photo", [".jpg", ".jpeg", ".png", ".webp"])
-                bill_photo = file_box("Bill photo or PDF", [".jpg", ".jpeg", ".png", ".webp", ".pdf"])
-            gr.Markdown(
-                "Label photo fills in the product details. Bill fills in the HSN code and GST %. "
-                "JPG, PNG or PDF. Photos under 4 MB, PDFs under 3 MB.",
-                elem_id="upload-hint",
-            )
+            # Card 1: the one thing the user must give us. The label photo sits next to the box it fills.
+            with gr.Column(variant="panel", elem_classes="card"):
+                gr.HTML('<div class="card-title">1. Product details <span class="tag tag-required">Required</span></div>'
+                        '<div class="card-line">Type what it is, ingredients with %, form and use. '
+                        'Or upload a label photo: the details are filled in automatically.</div>')
+                with gr.Row(equal_height=True):
+                    with gr.Column(scale=1, min_width=160, elem_classes="photo-col"):
+                        label_photo = file_box("Label photo", [".jpg", ".jpeg", ".png", ".webp"], "JPG or PNG, up to 4 MB")
+                    with gr.Column(scale=2):
+                        product_details_box = gr.Textbox(
+                            label="Product details",
+                            show_label=False,
+                            placeholder="e.g. Seaweed bio-stimulant, liquid. Seaweed extract 30%, potassium 5%. No plant growth regulators.",
+                            lines=5,
+                        )
+                label_status = gr.Markdown("", elem_classes="status-line")
 
-            label_status = gr.Markdown("")
-            bill_status = gr.Markdown("")
+            # Card 2: the bill. Optional: without it the user still gets the right code and rate.
+            with gr.Column(variant="panel", elem_classes="card"):
+                gr.HTML('<div class="card-title">2. Your bill <span class="tag tag-optional">Optional</span></div>'
+                        '<div class="card-line">Skip this to just get the right code. Add it to see if the bill is right. '
+                        'Upload a bill photo or PDF: the HSN code and GST % are filled in automatically.</div>')
+                with gr.Row(equal_height=True):
+                    with gr.Column(scale=1, min_width=160, elem_classes="photo-col"):
+                        bill_photo = file_box("Bill photo or PDF", [".jpg", ".jpeg", ".png", ".webp", ".pdf"],
+                                              "Photo up to 4 MB, PDF up to 3 MB")
+                    with gr.Column(scale=2):
+                        bill_hsn_box = gr.Textbox(
+                            label="HSN code on the bill",
+                            placeholder="e.g. 3808",
+                        )
+                        bill_gst_box = gr.Dropdown(
+                            label="GST % on the bill",
+                            info="CGST + SGST, e.g. 9 + 9 = 18",
+                            choices=["0", "5", "18", "40"],
+                            value=None,
+                            allow_custom_value=True,
+                        )
+                bill_status = gr.Markdown("", elem_classes="status-line")
 
-            product_details_box = gr.Textbox(
-                label="Product details (needed)",
-                info="Type them, or upload a label photo. Say what it is, ingredients with %, form and use.",
-                placeholder="e.g. Seaweed bio-stimulant, liquid. Seaweed extract 30%, potassium 5%. No plant growth regulators.",
-                lines=6,
-            )
-
-            with gr.Row(equal_height=True):
-                bill_hsn_box = gr.Textbox(
-                    label="HSN code on the bill",
-                    info="Only if you have a bill",
-                    placeholder="e.g. 3808",
-                )
-                bill_gst_box = gr.Dropdown(
-                    label="GST % on the bill",
-                    info="CGST + SGST, e.g. 9 + 9 = 18",
-                    choices=["0", "5", "18", "40"],
-                    value=None,
-                    allow_custom_value=True,
-                )
-
+            # Only for saving, so it sits outside the two cards. It must be filled before Check to save that check.
             user_name_box = gr.Textbox(
-                label="Your name (optional)",
-                info="Only to find your checks again under My checks",
-                placeholder="e.g. Anand",
+                label="Your name",
+                show_label=False,
+                placeholder="Your name (optional): saves this check under My checks, at the bottom",
+                container=False,
             )
-
             check_button = gr.Button("Check GST code", variant="primary", size="lg")
             with gr.Row():
                 example_button = gr.Button("Fill in an example", variant="secondary", min_width=0)
