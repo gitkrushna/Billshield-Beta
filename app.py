@@ -292,6 +292,13 @@ def finish_label_reading(label_answer, bill_busy, clear_count):
     return new_details, message, gr.update(interactive=not bill_busy), False
 
 
+# Runs after every read has finished and its flag is saved. If both reads finish at the same moment, each
+# finish step above can still see the other box as busy and leave Check greyed out. This last step reads both
+# flags after they are saved, so the read that finishes last always switches Check back on.
+def check_button_after_reads(label_busy, bill_busy):
+    return gr.update(interactive=not (label_busy or bill_busy))
+
+
 def finish_bill_reading(bill_answer, label_busy, clear_count):
     if answer_is_old(bill_answer, clear_count):
         return gr.skip(), gr.skip(), gr.skip(), gr.skip(), gr.skip()
@@ -489,7 +496,8 @@ PAGE_STYLE = """
 .gradio-container {max-width: 1100px !important; margin: auto !important;}
 .file-box-holder .html-container {padding: 0 !important;}
 .status-line:not(:has(p)) {display: none !important;}   /* no gap while there is no status to show */
-.card {flex: none !important;}
+/* Nothing in the form column grows when the answer on the right gets long (cards, Check button, name box) */
+.form-col > * {flex: none !important;}
 /* Photo boxes as tall as the fields next to them */
 .photo-col > .file-box-holder {flex: 1 1 auto !important; display: flex !important; flex-direction: column;}
 .photo-col .html-container, .photo-col .html-container > div {flex: 1; display: flex; flex-direction: column;}
@@ -500,6 +508,7 @@ PAGE_STYLE = """
 .tag-required {background: #FF8C00; color: #111;}
 .tag-optional {background: #64748b; color: #fff;}
 #answer table {width: 100%;}
+#answer .pending {opacity: 1 !important;}   /* Gradio fades a waiting answer box to 20%; keep "Checking…" readable */
 .page-title {font-size: 2em; font-weight: 700; margin: 0;}
 .gst-word {color: #E50914;}
 .title-row {display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;}
@@ -563,7 +572,7 @@ with gr.Blocks(title="BillShield: GST Check") as page:
 
     with gr.Row(equal_height=True):
         # Left: what the user fills in
-        with gr.Column(scale=3):
+        with gr.Column(scale=3, elem_classes="form-col"):
             # Card 1: the one thing the user must give us. The label photo sits next to the box it fills.
             with gr.Column(variant="panel", elem_classes="card"):
                 gr.HTML('<div class="card-title">1. Product details <span class="tag tag-required">Required</span></div>'
@@ -650,16 +659,17 @@ with gr.Blocks(title="BillShield: GST Check") as page:
     )
     label_step_2 = label_step_1.then(
         read_label_now, inputs=[label_photo, product_details_box, clear_count], outputs=label_answer, queue=False,
+        show_progress="minimal",   # no grey layer over the page: our orange "Reading…" stays readable
     )
     label_step_2.success(
         finish_label_reading,
         inputs=[label_answer, bill_busy, clear_count],
         outputs=[product_details_box, label_status, check_button, label_busy],
         queue=False,
-    )
+    ).then(check_button_after_reads, inputs=[label_busy, bill_busy], outputs=check_button, queue=False)
     label_step_2.failure(
         reading_failed, inputs=[label_busy, bill_busy], outputs=[label_status, check_button, label_busy], queue=False,
-    )
+    ).then(check_button_after_reads, inputs=[label_busy, bill_busy], outputs=check_button, queue=False)
 
     # Bill chosen: grey out Check -> read the bill -> put the answer on the page and switch Check back on
     bill_step_1 = bill_photo.upload(
@@ -667,16 +677,17 @@ with gr.Blocks(title="BillShield: GST Check") as page:
     )
     bill_step_2 = bill_step_1.then(
         read_bill_now, inputs=[bill_photo, bill_hsn_box, bill_gst_box, clear_count], outputs=bill_answer, queue=False,
+        show_progress="minimal",
     )
     bill_step_2.success(
         finish_bill_reading,
         inputs=[bill_answer, label_busy, clear_count],
         outputs=[bill_hsn_box, bill_gst_box, bill_status, check_button, bill_busy],
         queue=False,
-    )
+    ).then(check_button_after_reads, inputs=[label_busy, bill_busy], outputs=check_button, queue=False)
     bill_step_2.failure(
         reading_failed, inputs=[bill_busy, label_busy], outputs=[bill_status, check_button, bill_busy], queue=False,
-    )
+    ).then(check_button_after_reads, inputs=[label_busy, bill_busy], outputs=check_button, queue=False)
 
     example_button.click(
         load_example,
@@ -700,6 +711,7 @@ with gr.Blocks(title="BillShield: GST Check") as page:
         inputs=[product_details_box, bill_hsn_box, bill_gst_box, user_name_box],
         outputs=[answer_box, seller_message_box],
         queue=False,
+        show_progress="minimal",   # only Gradio's small timer; no grey layer dimming "Checking…"
     )
     # If the check request itself dies (e.g. a server time limit), don't leave "Checking…" on screen
     check_step.failure(
