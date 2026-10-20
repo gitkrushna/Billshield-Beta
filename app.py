@@ -497,6 +497,23 @@ async def dark_by_default(request, call_next):
     return await call_next(request)
 
 
+# Faster page loads. The page needs about 60 script/style files, and Gradio serves each one through our
+# Python function with "don't cache". Files under /assets/ carry a version hash in their name
+# (e.g. index-D88pgWqG.js), so a file with a given name never changes: browsers and Vercel's network may
+# keep them for a year. /static/ (fonts) and theme.css change only when Gradio is upgraded: keep for a day.
+# "s-maxage" lets Vercel's servers near the visitor answer instead of starting our Python function.
+@app.middleware("http")
+async def cache_page_files(request, call_next):
+    response = await call_next(request)
+    path = request.url.path
+    if request.method == "GET" and response.status_code == 200:
+        if path.startswith("/assets/"):
+            response.headers["Cache-Control"] = "public, max-age=31536000, s-maxage=31536000, immutable"
+        elif path.startswith("/static/") or path == "/theme.css":
+            response.headers["Cache-Control"] = "public, max-age=86400, s-maxage=86400"
+    return response
+
+
 with gr.Blocks(title="BillShield: GST Check") as page:
     # Hidden boxes. They live in the browser (not on the server), so every request carries them.
     label_busy = gr.Checkbox(False, visible=False)     # the label photo is being read
