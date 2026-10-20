@@ -482,7 +482,7 @@ def file_box(box_title, file_types, limit_text):
 # ---------- The page ----------
 # The pitch deck, opened by the yellow "Why this app?" button next to the title
 PITCH_DECK_URL = "https://claude.ai/artifact/8uVMCWanRfTxp6QK2taDj1#evidence"
-# The same page without "#evidence": the build timeline, opened by "Our journey"
+# The same page without "#evidence": the build timeline, opened by "The Journey"
 JOURNEY_URL = "https://claude.ai/artifact/8uVMCWanRfTxp6QK2taDj1"
 
 PAGE_STYLE = """
@@ -553,7 +553,7 @@ with gr.Blocks(title="BillShield: GST Check") as page:
     # HTML (not Markdown) so "GST" can have its own colour: Netflix red, #E50914
     gr.HTML('<div class="title-row"><h1 class="page-title">BillShield: <span class="gst-word">GST</span> Check</h1>'
             '<div class="title-links">'
-            f'<a class="journey-button" href="{JOURNEY_URL}" target="_blank" rel="noopener">Our journey</a>'
+            f'<a class="journey-button" href="{JOURNEY_URL}" target="_blank" rel="noopener">The Journey</a>'
             f'<a class="why-button" href="{PITCH_DECK_URL}" target="_blank" rel="noopener">Why this app?</a>'
             '</div></div>')
     gr.Markdown(
