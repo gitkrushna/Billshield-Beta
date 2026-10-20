@@ -480,6 +480,11 @@ def file_box(box_title, file_types, limit_text):
 
 
 # ---------- The page ----------
+# The pitch deck, opened by the yellow "Why this app?" button next to the title
+PITCH_DECK_URL = "https://claude.ai/artifact/8uVMCWanRfTxp6QK2taDj1#evidence"
+# The same page without "#evidence": the build timeline, opened by "Our journey"
+JOURNEY_URL = "https://claude.ai/artifact/8uVMCWanRfTxp6QK2taDj1"
+
 PAGE_STYLE = """
 .gradio-container {max-width: 1100px !important; margin: auto !important;}
 .file-box-holder .html-container {padding: 0 !important;}
@@ -497,6 +502,15 @@ PAGE_STYLE = """
 #answer table {width: 100%;}
 .page-title {font-size: 2em; font-weight: 700; margin: 0;}
 .gst-word {color: #E50914;}
+.title-row {display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;}
+.why-button {background: #FACC15; color: #111 !important; font-weight: 700; padding: 8px 16px; border-radius: 8px;
+             text-decoration: none !important; white-space: nowrap;}
+.why-button:hover {background: #FDE047;}
+.title-links {display: flex; gap: 10px; flex-wrap: wrap;}
+/* Second button: same yellow, outlined, so "Why this app?" stays the main one */
+.journey-button {border: 2px solid #FACC15; color: #FACC15 !important; font-weight: 700; padding: 6px 14px; border-radius: 8px;
+                 text-decoration: none !important; white-space: nowrap;}
+.journey-button:hover {background: rgba(250, 204, 21, 0.12);}
 .busy-text {color: #FF8C00; font-weight: 600;}
 @media (max-width: 700px) { #answer {min-height: 260px !important;} }
 """
@@ -537,7 +551,11 @@ with gr.Blocks(title="BillShield: GST Check") as page:
     bill_answer = gr.JSON(visible=False)     # what the bill reading found, until it goes on the page
 
     # HTML (not Markdown) so "GST" can have its own colour: Netflix red, #E50914
-    gr.HTML('<h1 class="page-title">BillShield: <span class="gst-word">GST</span> Check</h1>')
+    gr.HTML('<div class="title-row"><h1 class="page-title">BillShield: <span class="gst-word">GST</span> Check</h1>'
+            '<div class="title-links">'
+            f'<a class="journey-button" href="{JOURNEY_URL}" target="_blank" rel="noopener">Our journey</a>'
+            f'<a class="why-button" href="{PITCH_DECK_URL}" target="_blank" rel="noopener">Why this app?</a>'
+            '</div></div>')
     gr.Markdown(
         "Find the right HSN code and GST rate for a product, and see if a bill got it right. "
         "**All you need is the product details.** Photos just fill in the boxes for you."
